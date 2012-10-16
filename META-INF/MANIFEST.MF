@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.rexpd.diffraction.data
+Bundle-SymbolicName: org.rexpd.data.powder
+Bundle-Version: 0.6.3
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.rexpd.core;bundle-version="0.6.3",
+ rex.structure;bundle-version="0.6.3"
+Export-Package: org.rexpd.data.powder,
+ org.rexpd.data.powder.io
