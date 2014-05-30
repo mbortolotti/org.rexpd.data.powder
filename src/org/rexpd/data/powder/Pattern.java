@@ -8,34 +8,65 @@ import java.util.ListIterator;
 
 import org.rexpd.core.base.AbstractBase;
 import org.rexpd.core.utils.DoublePair;
+import org.rexpd.core.utils.IntPair;
 import org.rexpd.structure.structure.StructureFactorList;
 
 public class Pattern extends AbstractBase {
+	
+	public static enum PatternType {
+		EXPERIMENTAL,
+		SIMULATED
+	}
 
-	public static final String PATTERN_TAG = "pattern";
+	public static final String PATTERN_TAG = "Pattern";
 
 	private List<DataPoint> dataPoints = null;
-
+	private PatternType dataType = PatternType.EXPERIMENTAL;
+	
 	// TODO remove dependency from org.rexpd.structure package
 	private List<StructureFactorList> structureFactorLists = null;
 
 	public Pattern() {
 		setType(PATTERN_TAG);
+		setLabel(PATTERN_TAG);
 		dataPoints = new ArrayList<DataPoint>();
 		structureFactorLists = new ArrayList<StructureFactorList>();
 	}
+	
+	public static Pattern simulatedPattern(double xmin, double xmax, double xstep) {
+		Pattern simPattern = new Pattern();
+		simPattern.setDataType(PatternType.SIMULATED);
+		if (xmin <= xmax && (xmax - xmin) > 2 * xstep) {
+			int npoints = (int) ((xmax - xmin) / xstep);
+			for (int np = 0; np < npoints; np++) {
+				double x = xmin + np*xstep;
+				double y = 0;
+				simPattern.addPoint(new DataPoint(x, y));
+			}
+		}
+		return simPattern;
+	}
 
-	public Pattern(Pattern original) {
-		this();
-		setLabel(original.getLabel());
+	public static Pattern create(Pattern original) {
+		Pattern newPattern = new Pattern();
+		newPattern.setLabel(original.getLabel());
 		try {
 			for (DataPoint point : original.getPointList())
-				addPoint((DataPoint) point.clone());
+				newPattern.addPoint((DataPoint) point.clone());
 		} catch (CloneNotSupportedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		setActiveDomain(original.getActiveDomain());
+		newPattern.setActiveDomain(original.getActiveDomain());
+		return newPattern;
+	}
+
+	public PatternType getDataType() {
+		return dataType;
+	}
+
+	public void setDataType(PatternType type) {
+		dataType = type;
 	}
 
 	public Pattern getModifiedPattern() {
@@ -49,10 +80,11 @@ public class Pattern extends AbstractBase {
 		return modified;
 	}
 
-	public void applyModifications() {
+	public void swapModifiedPattern() {
 		for (DataPoint point : getActivePointList()) {
-			point.setYValue(point.getYMod());
-			point.setYMod(0.0);
+			double temp = point.getYMod();
+			point.setYMod(point.getYCalc());
+			point.setYCalc(temp);
 		}
 	}
 
@@ -71,6 +103,20 @@ public class Pattern extends AbstractBase {
 				activePoints.add(point);
 		}
 		return activePoints;
+	}
+
+	public IntPair getRangeIndex(double x1, double x2) {
+		double x_min = getDomain().getMin();
+		double x_max = getDomain().getMax();
+		if (x1 >= x_max)
+			return new IntPair(0, -1);
+		if (x2 <= x_min)
+			return new IntPair(-1, 0);
+		double x_k_min = x1 > x_min ? x1 : x_min;
+		double x_k_max = x2 < x_max ? x2 : x_max;
+		int x_index_min = getClosestIndex(new DataPoint(x_k_min, 0.0));
+		int x_index_max = getClosestIndex(new DataPoint(x_k_max, 0.0));
+		return new IntPair(x_index_min, x_index_max);
 	}
 
 	public int getClosestIndex(DataPoint point) {

@@ -20,8 +20,11 @@ public class DataSetReaderXYE extends DataSetReader {
 		String line;
 		Pattern pattern = new Pattern();
 		while ((line = getReader().readLine()) != null) {
+			String trimmed = line.trim();
+			if (trimmed.length() == 0 || Character.isLetter(trimmed.charAt(0)))
+				continue;
 			StringTokenizer tokenizer = new StringTokenizer(line);
-			if (tokenizer.countTokens() == 3) {
+			if (tokenizer.countTokens() >= 3) {
 				Double two_theta = Double.valueOf(tokenizer.nextToken());
 				Double intensity = Double.valueOf(tokenizer.nextToken());
 				// TODO add third line (error)

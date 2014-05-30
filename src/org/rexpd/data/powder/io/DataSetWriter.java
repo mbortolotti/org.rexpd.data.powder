@@ -8,6 +8,8 @@ import org.rexpd.data.powder.DataSet;
 
 public abstract class DataSetWriter {
 	
+	// TODO REFACTOR EVERYTHING!!!
+	
 	public enum Formats {
 
 		XY(new String[] {"xy"}, "XY files");

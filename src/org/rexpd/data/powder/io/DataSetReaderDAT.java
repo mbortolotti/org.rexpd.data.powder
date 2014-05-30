@@ -24,11 +24,18 @@ public class DataSetReaderDAT extends DataSetReader {
 		String line;
 		Pattern pattern = new Pattern();
 		while ((line = getReader().readLine()) != null) {
+			/** skip comment block **/
 			if ((line.startsWith("_")) || (line.startsWith(";")) || (line.startsWith("!")) || (line.startsWith("#"))) {
+				System.out.println("commented line: " + line);
+				continue;
+			}
+			/** check for free comments **/
+			if (Character.isLetter(line.charAt(0))) {
+				System.out.println("uncommented line: " + line);
 				continue;
 			}
 			StringTokenizer tokenizer = new StringTokenizer(line);
-			if (tokenizer.countTokens() == 3 && !headerFound) {
+			if (tokenizer.countTokens() >= 3 && !headerFound) {
 				x_start = Double.parseDouble(tokenizer.nextToken());
 				x_step = Double.parseDouble(tokenizer.nextToken());
 				System.out.println("x_start: " + x_start);

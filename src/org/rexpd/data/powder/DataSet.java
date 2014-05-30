@@ -5,16 +5,17 @@ import java.util.Collections;
 import java.util.List;
 
 import org.rexpd.core.base.AbstractBase;
+import org.rexpd.core.base.IBase;
 import org.rexpd.core.utils.DoublePair;
 
 
 
 public class DataSet extends AbstractBase {
 
-	public static final String DATASET_TAG = "dataset";
+	public static final String DATASET = "Dataset";
 
 	public enum Events {
-		DATA_CHANGED
+		DATASET_CHANGED
 	}
 
 	public static enum Measurement {
@@ -43,15 +44,30 @@ public class DataSet extends AbstractBase {
 
 	}
 
+	private Instrument instrument = null;
 	private List<Pattern> patterns = null;
 	private Pattern activePattern = null;
 
 	private Measurement measurement = Measurement.TWO_THETA;
 
-	public DataSet() {
-		setType(DATASET_TAG);
-		setLabel(DATASET_TAG);
+	public DataSet(Instrument inst) {
+		setType(DATASET);
+		setLabel(DATASET);
+		setInstrument(inst);
 		patterns = new ArrayList<Pattern>();
+	}
+	
+	@Deprecated // TODO - refactor instrument - dataset relationship
+	public DataSet() {
+		this(null);
+	}
+
+	public Instrument getInstrument() {
+		return instrument;
+	}
+
+	public void setInstrument(Instrument inst) {
+		instrument = inst;
 	}
 
 	public void setActiveDomain(DoublePair domain) {
@@ -60,6 +76,8 @@ public class DataSet extends AbstractBase {
 	}
 
 	public DoublePair getActiveDomain() {
+		if (patterns.size() == 0)
+			return new DoublePair(0.0, 100);
 		double min = Double.MAX_VALUE;
 		double max = Double.MIN_VALUE;
 		for (Pattern pattern : patterns) {
@@ -79,10 +97,15 @@ public class DataSet extends AbstractBase {
 	@Override
 	public boolean isEnabled() {
 		for (Pattern pattern : patterns) {
-			if (!(pattern.isEnabled()))
-				return false;
+			if ((pattern.isEnabled()))
+				return true;
 		}
-		return true;
+		return false;
+	}
+
+	@Override
+	public List<? extends IBase> getNodes() {
+		return patterns;
 	}
 
 	public Measurement getMeasurement() {
@@ -134,9 +157,9 @@ public class DataSet extends AbstractBase {
 	}
 
 	public void setActivePattern(Pattern active) {
-		if (!(patterns.contains(active))) {
+		/**if (!(patterns.contains(active))) {
 			patterns.add(active);
-		}
+		}**/
 		activePattern = active;
 	}
 

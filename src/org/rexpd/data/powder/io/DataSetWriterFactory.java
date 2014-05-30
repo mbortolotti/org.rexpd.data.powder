@@ -14,11 +14,14 @@ public abstract class DataSetWriterFactory {
 			throw new IOException("Unable to recognize file extension!");
 		String extension = fileName.substring(dotpos + 1);
 		PrintWriter writer = new PrintWriter(fileName);
+		DataSetWriter datasetWriter = null;
 		for (String ext : Formats.XY.extensions)
 			if (extension.toLowerCase().equals(ext)) {
-				return new DataSetWriterXY(dataset, writer);
+				datasetWriter = new DataSetWriterXY(dataset, writer);
 			}
+		if (datasetWriter != null)
+			return datasetWriter;
 		throw new UnsupportedFormatException(extension);
 	}
-	
+
 }
